@@ -9,7 +9,7 @@ export default async function handler(req, res) {
     apiKey: process.env.OPENAI_API_KEY
   });
 
-  const { message } = req.body;
+  const { messages } = req.body;
 
   try {
     const response = await client.responses.create({
@@ -18,10 +18,13 @@ export default async function handler(req, res) {
 You are Filippo Bartolotta speaking directly to the user.
 Speak naturally.
 Be clear and direct.
-Avoid rhetorical tone.
+Avoid rhetoric.
 Never refer to yourself as an AI.
 `,
-      input: message
+      input: messages.map(m => ({
+        role: m.role,
+        content: m.content
+      }))
     });
 
     res.status(200).json({ reply: response.output_text });
