@@ -1,12 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <title>Filippo Bartolotta AI</title>
+
+  <!-- Markdown renderer -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
   <style>
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f4f4f4;
       display: flex;
       flex-direction: column;
       height: 100vh;
@@ -15,8 +20,8 @@
     header {
       padding: 20px;
       background: white;
-      border-bottom: 1px solid #ddd;
-      font-weight: bold;
+      border-bottom: 1px solid #e0e0e0;
+      font-weight: 600;
     }
 
     #chat {
@@ -30,10 +35,11 @@
 
     .message {
       max-width: 70%;
-      padding: 12px 16px;
-      border-radius: 16px;
-      line-height: 1.4;
-      white-space: pre-wrap;
+      padding: 14px 18px;
+      border-radius: 18px;
+      line-height: 1.5;
+      font-size: 15px;
+      white-space: normal;
     }
 
     .user {
@@ -60,6 +66,8 @@
       resize: none;
       padding: 10px;
       font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
     }
 
     button {
@@ -68,6 +76,7 @@
       background: black;
       color: white;
       border: none;
+      border-radius: 8px;
       cursor: pointer;
     }
 
@@ -87,7 +96,7 @@
 <div id="chat"></div>
 
 <div id="inputArea">
-  <textarea id="input" rows="2" placeholder="Ask Filippo about wine or travel..."></textarea>
+  <textarea id="input" rows="2" placeholder="Ask about wine, regions, or travel..."></textarea>
   <button onclick="send()" id="sendBtn">Send</button>
 </div>
 
@@ -101,7 +110,13 @@
   function addMessage(text, role) {
     const div = document.createElement("div");
     div.classList.add("message", role);
-    div.innerText = text;
+
+    if (role === "bot") {
+      div.innerHTML = marked.parse(text);
+    } else {
+      div.textContent = text;
+    }
+
     chat.appendChild(div);
     chat.scrollTop = chat.scrollHeight;
   }
@@ -116,20 +131,30 @@
     input.value = "";
     sendBtn.disabled = true;
 
-    addMessage("Thinking...", "bot");
+    const loadingDiv = document.createElement("div");
+    loadingDiv.classList.add("message", "bot");
+    loadingDiv.textContent = "Thinking...";
+    chat.appendChild(loadingDiv);
+    chat.scrollTop = chat.scrollHeight;
 
-    const res = await fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages })
-    });
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages })
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    chat.removeChild(chat.lastChild);
+      chat.removeChild(loadingDiv);
 
-    addMessage(data.reply, "bot");
-    messages.push({ role: "assistant", content: data.reply });
+      addMessage(data.reply, "bot");
+      messages.push({ role: "assistant", content: data.reply });
+
+    } catch (error) {
+      chat.removeChild(loadingDiv);
+      addMessage("Error connecting to the server.", "bot");
+    }
 
     sendBtn.disabled = false;
   }
