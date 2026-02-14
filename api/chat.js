@@ -14,13 +14,13 @@ export default async function handler(req, res) {
 
     const { messages, responseLanguage } = req.body;
 
-    const assistantId = "asst_e6w9f6Xntlz18jIuoCheE0uv"; 
-    // ← SOSTITUISCI con il tuo vero assistant_id
+    const assistantId = "asst_XXXXXXXXXXXX"; 
+    // 🔴 SOSTITUISCI con il tuo vero assistant_id
 
-    // 1️⃣ Crea un thread
+    // 1️⃣ Crea thread
     const thread = await client.beta.threads.create();
 
-    // 2️⃣ Inserisci i messaggi nel thread
+    // 2️⃣ Inserisci tutti i messaggi nel thread
     for (const msg of messages) {
       await client.beta.threads.messages.create(thread.id, {
         role: msg.role,
@@ -28,7 +28,7 @@ export default async function handler(req, res) {
       });
     }
 
-    // 3️⃣ Avvia il run con l’assistant
+    // 3️⃣ Avvia run con istruzioni lingua
     const run = await client.beta.threads.runs.create(thread.id, {
       assistant_id: assistantId,
       instructions: responseLanguage === "it"
@@ -36,7 +36,7 @@ export default async function handler(req, res) {
         : "Reply in English."
     });
 
-    // 4️⃣ Aspetta che finisca
+    // 4️⃣ Aspetta completamento
     let runStatus = await client.beta.threads.runs.retrieve(thread.id, run.id);
 
     while (runStatus.status !== "completed") {
@@ -45,24 +45,38 @@ export default async function handler(req, res) {
         throw new Error("Run failed");
       }
 
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (runStatus.status === "requires_action") {
+        throw new Error("Tool action required but not handled.");
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 800));
 
       runStatus = await client.beta.threads.runs.retrieve(thread.id, run.id);
     }
 
-    // 5️⃣ Recupera i messaggi finali
-    const messagesList = await client.beta.threads.messages.list(thread.id);
+    // 5️⃣ Recupera messaggi thread
+    const threadMessages = await client.beta.threads.messages.list(thread.id);
 
-    const assistantMessage = messagesList.data.find(
-      m => m.role === "assistant"
-    );
+    // 6️⃣ Trova ultimo messaggio assistant valido
+    const assistantMessages = threadMessages.data
+      .filter(m => m.role === "assistant")
+      .sort((a, b) => a.created_at - b.created_at);
 
-    const reply = assistantMessage?.content[0]?.text?.value || "No response.";
+    const lastAssistant = assistantMessages[assistantMessages.length - 1];
 
-    res.status(200).json({ reply });
+    let reply = "No response.";
+
+    if (lastAssistant && lastAssistant.content) {
+      const textBlock = lastAssistant.content.find(c => c.type === "text");
+      if (textBlock) {
+        reply = textBlock.text.value;
+      }
+    }
+
+    return res.status(200).json({ reply });
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal error" });
+    console.error("Assistant error:", error);
+    return res.status(500).json({ error: "Internal error" });
   }
 }
