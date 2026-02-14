@@ -14,7 +14,7 @@ export default async function handler(req, res) {
 
     const { messages, responseLanguage } = req.body;
 
-    const assistantId = "asst_XXXXXXXXXXXX"; 
+    const assistantId = "asst_e6w9f6Xntlz18jIuoCheE0uv"; 
     // ← SOSTITUISCI con il tuo vero assistant_id
 
     // 1️⃣ Crea un thread
