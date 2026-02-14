@@ -1,13 +1,19 @@
-import OpenAI from "openai";
+const OpenAI = require("openai");
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   try {
 
-    const { messages, responseLanguage } = req.body;
+    const body = req.body || {};
+    const messages = Array.isArray(body.messages) ? body.messages : [];
+    const responseLanguage = body.responseLanguage || "it";
+
+    if (messages.length === 0) {
+      return res.status(400).json({ error: "No messages provided" });
+    }
 
     const response = await openai.responses.create({
       model: "gpt-4.1",
@@ -22,6 +28,7 @@ export default async function handler(req, res) {
       input: [
         {
           role: "system",
+          content: `
 You are Filippo Bartolotta speaking directly to the user.
 
 You are not describing Filippo.
