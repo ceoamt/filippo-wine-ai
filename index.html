@@ -5,12 +5,12 @@
 <title>Filippo Bartolotta AI</title>
 
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
 
 body {
   margin: 0;
-  font-family: "Georgia", serif;
   background: #F5F1E8;
   color: #2A2A2A;
   display: flex;
@@ -21,18 +21,18 @@ body {
 /* HEADER */
 
 header {
-  padding: 28px 40px;
+  padding: 30px 50px 20px 50px;
+  background: #F5F1E8;
   display: flex;
   align-items: center;
-  border-bottom: 1px solid rgba(0,0,0,0.05);
-  background: #F5F1E8;
+  position: relative;
 }
 
 .logo {
-  height: 54px;
+  height: 56px;
   opacity: 0;
-  transform: translateY(8px);
-  animation: fadeIn 0.6s ease-out forwards;
+  transform: translateY(6px);
+  animation: fadeIn 0.7s ease-out forwards;
 }
 
 @keyframes fadeIn {
@@ -42,25 +42,50 @@ header {
   }
 }
 
+/* micro line */
+
+header::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50px;
+  right: 50px;
+  height: 1px;
+  background: #5B1F2A;
+  opacity: 0.25;
+}
+
 /* INTRO */
 
 .intro {
-  padding: 20px 40px 0 40px;
-  max-width: 760px;
+  padding: 30px 50px 10px 50px;
+  max-width: 780px;
 }
 
 .intro h1 {
+  font-family: 'Cormorant Garamond', serif;
   font-weight: 500;
+  font-size: 28px;
+  color: #5B1F2A;
+  margin-bottom: 6px;
+}
+
+.intro h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 400;
   font-size: 20px;
   color: #5B1F2A;
-  margin-bottom: 8px;
+  opacity: 0.75;
+  margin-top: 0;
+  margin-bottom: 14px;
 }
 
 .intro p {
+  font-family: Georgia, serif;
+  font-size: 15px;
+  line-height: 1.7;
+  color: #6D6D6D;
   margin: 0;
-  font-size: 14px;
-  color: #8A8A8A;
-  line-height: 1.6;
 }
 
 /* CHAT */
@@ -68,18 +93,28 @@ header {
 #chat {
   flex: 1;
   overflow-y: auto;
-  padding: 30px 40px;
+  padding: 30px 50px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 20px;
 }
 
 .message {
-  max-width: 680px;
-  padding: 16px 20px;
-  border-radius: 14px;
-  line-height: 1.6;
-  font-size: 15px;
+  max-width: 700px;
+  padding: 18px 22px;
+  border-radius: 12px;
+  line-height: 1.7;
+  font-size: 16px;
+  opacity: 0;
+  transform: translateY(8px);
+  animation: messageAppear 0.35s ease forwards;
+}
+
+@keyframes messageAppear {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .user {
@@ -87,19 +122,21 @@ header {
   background: #5B1F2A;
   color: white;
   font-family: -apple-system, sans-serif;
+  font-size: 14px;
 }
 
 .bot {
   align-self: flex-start;
   background: white;
   border: 1px solid rgba(0,0,0,0.08);
+  font-family: Georgia, serif;
 }
 
 /* INPUT */
 
 #inputArea {
   display: flex;
-  padding: 20px 40px;
+  padding: 25px 50px;
   background: #F5F1E8;
   border-top: 1px solid rgba(0,0,0,0.05);
 }
@@ -107,22 +144,23 @@ header {
 textarea {
   flex: 1;
   resize: none;
-  padding: 12px;
+  padding: 14px;
   font-size: 14px;
-  border: 1px solid rgba(0,0,0,0.1);
+  border: 1px solid rgba(0,0,0,0.12);
   border-radius: 8px;
   font-family: -apple-system, sans-serif;
+  background: white;
 }
 
 button {
-  margin-left: 12px;
-  padding: 12px 20px;
+  margin-left: 14px;
+  padding: 14px 22px;
   background: #5B1F2A;
   color: white;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.25s ease;
 }
 
 button:hover {
@@ -144,9 +182,11 @@ button:disabled {
 </header>
 
 <div class="intro">
-  <h1>Ask about wine and travel</h1>
+  <h1>Ask Filippo</h1>
+  <h2>Chiedi a Filippo</h2>
   <p>
-    Conversazioni sul vino, territori e cultura enologica.<br>
+    Conversazioni sul vino, territori e cultura enologica.
+    <br>
     Conversations about wine, regions and curated travel experiences.
   </p>
 </div>
@@ -154,7 +194,7 @@ button:disabled {
 <div id="chat"></div>
 
 <div id="inputArea">
-  <textarea id="input" rows="2" placeholder="Ask Filippo..."></textarea>
+  <textarea id="input" rows="2" placeholder="Ask about wine, regions, or travel..."></textarea>
   <button onclick="send()" id="sendBtn">Send</button>
 </div>
 
@@ -192,7 +232,7 @@ async function send() {
 
   const loading = document.createElement("div");
   loading.classList.add("message", "bot");
-  loading.textContent = "Thinking...";
+  loading.textContent = "…";
   chat.appendChild(loading);
 
   try {
