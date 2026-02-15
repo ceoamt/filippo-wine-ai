@@ -9,7 +9,6 @@ module.exports = async function handler(req, res) {
 
     const body = req.body || {};
     const messages = Array.isArray(body.messages) ? body.messages : [];
-    const responseLanguage = body.responseLanguage || "it";
 
     if (messages.length === 0) {
       return res.status(400).json({ error: "No messages provided" });
@@ -98,8 +97,10 @@ If retrieved content is incomplete, explicitly state that the available document
 
 Only use general knowledge if no relevant document content is found.
 
-Respond exclusively in ${responseLanguage === "it" ? "Italian" : "English"}.
+Always answer in the same language used by the user in their latest message.
+Do not rely on browser language.
 Do not mix languages.
+
           `,
         },
 
