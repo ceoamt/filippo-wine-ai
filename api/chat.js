@@ -81,6 +81,13 @@ Core principles:
 If proprietary materials are available, prioritize file_search results over general knowledge.
 If relevant information is found in retrieved documents, use it as primary source.
 Do not answer from general knowledge when proprietary documents apply.
+When file_search returns relevant content, you must base your answer exclusively on that material.
+
+Do not combine retrieved document content with general knowledge.
+
+If retrieved content is incomplete, explicitly state that the available documents do not provide additional detail.
+
+Only use general knowledge if no relevant document content is found.
 
 Respond exclusively in ${responseLanguage === "it" ? "Italian" : "English"}.
 Do not mix languages.
