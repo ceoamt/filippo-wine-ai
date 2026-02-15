@@ -21,7 +21,7 @@ module.exports = async function handler(req, res) {
       tools: [
         {
           type: "file_search",
-          vector_store_ids: ["vs_699098debb6c81919d7c0c18af8ef7cb"],
+          vector_store_ids: ["vs_6991adff181081919d0fd8e1b8ea3dfb"],
         },
       ],
 
